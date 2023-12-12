@@ -3,24 +3,35 @@ import numpy as np
 
 import seaborn as sns
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 import env
 import os
 
 def wrangle_zillow():
     """
-    Acquires the zillow data from the CodeUp MySQL database
+    Acquires the zillow data from the CodeUp MySQL database or reads the csv
     Drops all 12,628 null values in the data (0.58% of the data)
     Changes data types for listed columns from float to int
     - bedroomcnt, calculatedfinishedsquarefeet, taxvaluedollarcnt, yearbuilt, and fips
     """
     #Acquire the data
-    url = env.get_db_url('zillow')
-    df = pd.read_sql('''select bedroomcnt, bathroomcnt, calculatedfinishedsquarefeet, taxvaluedollarcnt, yearbuilt, taxamount, fips
-    from propertylandusetype
+    filename = 'zillow.csv'
+    if os.path.exists(filename):
+        print('this file exists, reading from csv')
+        #read from csv
+        df = pd.read_csv(filename, index_col=0)
+    else:
+        print('this file doesnt exist, reading from sql and saving to csv')
+        #read from sql
+        url = env.get_db_url('zillow')
+        df = pd.read_sql('''select bedroomcnt, bathroomcnt, calculatedfinishedsquarefeet, taxvaluedollarcnt, yearbuilt, taxamount, fips
+        from propertylandusetype
         join properties_2017
             using (propertylandusetypeid)
-    WHERE propertylandusedesc = ("Single Family Residential");''', url)
+        WHERE propertylandusedesc = ("Single Family Residential");''', url)
+        #save to csv
+        df.to_csv(filename)
     
     #Dropped nulls which drops 0.58% of the original data
     df = df.dropna()
