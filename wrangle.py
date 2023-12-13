@@ -62,5 +62,9 @@ def split_data(df):
                 test_size = 0.50, #split 50/50
                 random_state = 123, #gotta send in a random seed
                 )
-    
+    print(f'''
+Train Shape: {train.shape}
+Validate Shape: {validate.shape}
+Test Shape: {test.shape}
+    ''')
     return train, validate, test
